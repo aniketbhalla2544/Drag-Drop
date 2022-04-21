@@ -12,6 +12,16 @@
     integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
   <style>
+    :root {
+      --color-primary-blue: #0d6efd;
+      --color-link: #62a1ff;
+    }
+
+    a:any-link {
+      color: black;
+      text-decoration: none;
+    }
+
     .drop-area {
       border: 4px dashed rgb(70, 70, 255);
       width: clamp(100px, 60vw, 800px);
@@ -29,6 +39,16 @@
       font-weight: 600;
       color: rgb(184, 184, 184);
     }
+
+    #url-list-box>a {
+      display: block;
+      margin-bottom: 0.5em;
+      text-align: center;
+    }
+
+    #url-list-box>a:hover {
+      color: var(--color-primary-blue);
+    }
   </style>
 </head>
 
@@ -36,27 +56,67 @@
 
   <div class="container">
     <p class="text-center fs-4">You've uploaded <span id="total-files-text" class="fw-bold"></span> files.</p>
-    <div class="drop-area"></div>
+    <div class="drop-area mb-5"></div>
+    <hr class="mb-5">
+    <h2 class="text-capitalize fw-bold text-primary text-center">uploaded file links</h2>
+    <div id="url-list-box" class="mb-5">
+    </div>
   </div>
 
   <script>
     const dropArea = document.querySelector('.drop-area');
     const totalFilesText = document.querySelector('#total-files-text');
+    const urlListBox = document.querySelector('#url-list-box');
+    const localStorage = window.localStorage;
     totalFilesText.innerHTML = '0';
 
-    dropArea.addEventListener('dragover', (event) => {
+    function renderTotalFilesText(fileList) {
+      const fileListLength = fileList.length;
+      totalFilesText.innerHTML = `${fileListLength}`;
+    }
+
+    function renderUrlListBox(fileList) {
+      const linksFragment = document.createDocumentFragment();
+      fileList.forEach((file) => {
+        const { name, url } = file;
+        const aElement = document.createElement('a');
+        aElement.text = name;
+        aElement.href = url;
+        aElement.target = '_blank';
+        linksFragment.appendChild(aElement);
+      });
+      urlListBox.innerHTML = "";
+      urlListBox.appendChild(linksFragment);
+    }
+
+    function stopBrowsersDefaultBehaviour(event) {
       event.stopPropagation();
       event.preventDefault();
+    }
+
+    dropArea.addEventListener('dragover', (event) => {
+      stopBrowsersDefaultBehaviour(event);
       event.dataTransfer.dropEffect = 'copy';
     });
 
     dropArea.addEventListener('drop', (event) => {
-      event.stopPropagation();
-      event.preventDefault();
-      const fileList = [...event.dataTransfer.files];
-      const fileListLength = fileList.length;
-      totalFilesText.innerHTML = `${fileListLength}`;
-      console.log(fileList);
+      stopBrowsersDefaultBehaviour(event);
+      const fileList = [...event.dataTransfer.files].reduce((acc, file) => {
+        return [...acc, {
+          name: file.name,
+          type: file.type,
+          url: URL.createObjectURL(file)
+        }]
+      }, []);
+      console.clear();
+      console.table(fileList);
+      renderTotalFilesText(fileList);
+      renderUrlListBox(fileList);
+      localStorage.setItem('fileList', JSON.stringify(fileList));
+      window.location.href = 'http://127.0.0.1:5500/uploadedDocuments.html';
+
+      // const fileUrlList = fileList.map((file) => URL.createObjectURL(file));
+      // console.log(fileList);
     });
 
   </script>
