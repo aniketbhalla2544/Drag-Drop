@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drag & Drop</title>
+
+  <!-- bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+  <style>
+    .drop-area {
+      border: 4px dashed rgb(70, 70, 255);
+      width: clamp(100px, 60vw, 800px);
+      min-height: 40vw;
+      margin-inline: auto;
+      cursor: move;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .drop-area::before {
+      content: 'Drop files here';
+      font-size: 2rem;
+      font-weight: 600;
+      color: rgb(184, 184, 184);
+    }
+  </style>
+</head>
+
+<body class="mt-5">
+
+  <div class="container">
+    <p class="text-center fs-4">You've uploaded <span id="total-files-text" class="fw-bold"></span> files.</p>
+    <div class="drop-area"></div>
+  </div>
+
+  <script>
+    const dropArea = document.querySelector('.drop-area');
+    const totalFilesText = document.querySelector('#total-files-text');
+    totalFilesText.innerHTML = '0';
+
+    dropArea.addEventListener('dragover', (event) => {
+      event.stopPropagation();
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'copy';
+    });
+
+    dropArea.addEventListener('drop', (event) => {
+      event.stopPropagation();
+      event.preventDefault();
+      const fileList = [...event.dataTransfer.files];
+      const fileListLength = fileList.length;
+      totalFilesText.innerHTML = `${fileListLength}`;
+      console.log(fileList);
+    });
+
+  </script>
+
+</body>
+
+</html>
