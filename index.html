@@ -61,6 +61,8 @@
     <h2 class="text-capitalize fw-bold text-primary text-center">uploaded file links</h2>
     <div id="url-list-box" class="mb-5">
     </div>
+    <div id="uploaded-document-list" class="border">
+    </div>
   </div>
 
   <script>
@@ -68,6 +70,7 @@
     const totalFilesText = document.querySelector('#total-files-text');
     const urlListBox = document.querySelector('#url-list-box');
     const localStorage = window.localStorage;
+    const uploadedDocumentListBox = document.querySelector('#uploaded-document-list');
     totalFilesText.innerHTML = '0';
 
     function renderTotalFilesText(fileList) {
@@ -94,6 +97,26 @@
       event.preventDefault();
     }
 
+    function renderUploadedDocumentListBox(uploadedDocumentList) {
+      const imagesFragment = document.createDocumentFragment();
+
+      uploadedDocumentList.forEach((uploadedDocument) => {
+        const { name, url } = uploadedDocument;
+        const aElement = document.createElement('a');
+        const img = document.createElement("img");
+
+        aElement.href = url;
+        aElement.target = '_blank';
+        img.height = 60;
+        img.src = url;
+        aElement.appendChild(img);
+        imagesFragment.appendChild(aElement);
+      })
+      uploadedDocumentListBox.innerHTML = '';
+      uploadedDocumentListBox.appendChild(imagesFragment);
+    }
+
+
     dropArea.addEventListener('dragover', (event) => {
       stopBrowsersDefaultBehaviour(event);
       event.dataTransfer.dropEffect = 'copy';
@@ -112,11 +135,7 @@
       console.table(fileList);
       renderTotalFilesText(fileList);
       renderUrlListBox(fileList);
-      localStorage.setItem('fileList', JSON.stringify(fileList));
-      window.location.href = 'uploadedDocuments.html';
-
-      // const fileUrlList = fileList.map((file) => URL.createObjectURL(file));
-      // console.log(fileList);
+      renderUploadedDocumentListBox(fileList);
     });
 
   </script>
